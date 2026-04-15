@@ -1,0 +1,6 @@
+SIte,approval_delegate,approval_takeover,approval_approve,approval_reject,approval_resubmit,currency_symbol,field_states,Created_Time,Amount,Parent_Id_name,Parent_Id_id,review_process,editable,layout_id_display_label,layout_id_name,layout_id_id,sharing_permission,orchestration,review,state,process_flow,in_merge,id,Site_Percentage,approval_state,approved,Parent_Id
+India,False,False,False,False,False,£,,2026-01-06T20:08:27+05:30,0.0,,,,True,Blocks,Blocks,930318000000667227,full_access,False,,save,False,False,930318000001332067,0.0,approved,True,
+India,False,False,False,False,False,£,,2025-12-16T22:16:45+05:30,180.5,,,,True,Blocks,Blocks,930318000000667227,full_access,False,,save,False,False,930318000000846928,0.9,approved,True,
+India,False,False,False,False,False,£,,2026-02-06T20:42:27+05:30,1720.0,,,,True,Blocks,Blocks,930318000000667227,full_access,False,,save,False,False,930318000002157155,100.0,approved,True,
+India,False,False,False,False,False,£,,2026-01-06T22:23:14+05:30,55555.0,,,,True,Blocks,Blocks,930318000000667227,full_access,False,,save,False,False,930318000001336323,100.0,approved,True,
+India,False,False,False,False,False,£,,2026-01-06T21:51:19+05:30,37037.0,,,,True,Blocks,Blocks,930318000000667227,full_access,False,,save,False,False,930318000001335274,100.0,approved,True,

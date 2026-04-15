@@ -1,0 +1,99 @@
+name: Incremental CRM → BigQuery ETL
+
+on:
+  schedule:
+    # 8:00 AM IST (02:30 UTC) — primary run
+    - cron: '30 2 * * *'
+    # 2:30 PM IST (09:00 UTC) — secondary run
+    - cron: '0 9 * * *'
+
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Which source to run (zoho / hubspot / both)'
+        required: false
+        default: 'both'
+
+# Prevent concurrent runs from racing on the same watermarks
+concurrency:
+  group: incremental-etl
+  cancel-in-progress: false   # Never cancel a running sync — let it finish
+
+jobs:
+
+  # -----------------------------------------------------------------------
+  # Zoho and HubSpot run in PARALLEL — independent jobs, independent failures
+  # -----------------------------------------------------------------------
+  zoho-incremental:
+    name: Zoho Incremental Sync
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.source == 'zoho' || github.event.inputs.source == 'both' || github.event_name == 'schedule' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'Incremental_Pipeline/requirements.txt'
+
+      - name: Install dependencies
+        working-directory: Incremental_Pipeline
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Zoho incremental sync
+        working-directory: Incremental_Pipeline
+        env:
+          ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
+          ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
+          ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
+          ZOHO_DOMAIN: ${{ secrets.ZOHO_DOMAIN }}
+          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: python zoho_sync.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Zoho incremental sync failed. Check logs above."
+          # Add Slack/email webhook here when ready
+
+  hubspot-incremental:
+    name: HubSpot Incremental Sync
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.source == 'hubspot' || github.event.inputs.source == 'both' || github.event_name == 'schedule' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'Incremental_Pipeline/requirements.txt'
+
+      - name: Install dependencies
+        working-directory: Incremental_Pipeline
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run HubSpot incremental sync
+        working-directory: Incremental_Pipeline
+        env:
+          HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: python hubspot_sync.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::HubSpot incremental sync failed. Check logs above."
