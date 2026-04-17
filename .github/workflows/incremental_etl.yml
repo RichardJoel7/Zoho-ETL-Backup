@@ -1,11 +1,7 @@
 name: Incremental CRM → BigQuery ETL
 
 on:
-  schedule:
-    # 8:00 AM IST (02:30 UTC) — primary run
-    - cron: '30 2 * * *'
-    # 2:30 PM IST (09:00 UTC) — secondary run
-    - cron: '0 9 * * *'
+
 
   workflow_dispatch:
     inputs:
